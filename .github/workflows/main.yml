@@ -12,14 +12,14 @@ jobs:
           distribution: 'microsoft'
           java-version: '21'
 
-      - name: Setup Gradle Without Broken Cache
+      - name: Setup Gradle Build Tool
         uses: gradle/actions/setup-gradle@v3
         with:
-          gradle-version: '8.8'
-          cache-disabled: true # Zwingt den Server, den kaputten Cache zu ignorieren!
+          gradle-version: '8.10.2' # Upgrade auf die exakt benötigte Version!
+          cache-disabled: true
 
       - name: Force Wrapper Generation
-        run: gradle wrapper --gradle-version 8.8
+        run: gradle wrapper --gradle-version 8.10.2
 
       - name: Grant Execute Permissions
         run: chmod +x gradlew
