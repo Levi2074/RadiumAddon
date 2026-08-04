@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "radiumaddon",
+  "version": "${version}",
+  "name": "Radium Addon",
+  "description": "Custom Tools Addon mit 4 Modulen für 1.21.11",
+  "authors": [ "Radium" ],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.example.radiumaddon.CustomAddonInitializer"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.15.11",
+    "minecraft": "~1.21.11",
+    "fabric-api": "*",
+    "meteor-client": "*"
+  }
+}
