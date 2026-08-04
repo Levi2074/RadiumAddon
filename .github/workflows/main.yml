@@ -12,29 +12,36 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Patch Build Script for Stability
+      - name: Force Custom Build Configuration
         run: |
-          # Ersetzt die kaputte SNAPSHOT-Version durch das stabile Loom 1.7.4
-          sed -i "s/id 'fabric-loom' version '.*'/id 'fabric-loom' version '1.7.4'/g" build.gradle
-          sed -i "s/id(\"fabric-loom\") version \".*\"/id(\"fabric-loom\") version \"1.7.4\"/g" build.gradle
+          # Überschreibt die build.gradle mit einem reinen Java-Shadow-Build, der Loom komplett ignoriert
+          cat << 'EOF' > build.gradle
+          plugins {
+              id 'java'
+              id 'com.github.johnrengelman.shadow' version '8.1.1'
+          }
+          version = '1.0.0'
+          group = 'com.example.radiumaddon'
+          repositories {
+              mavenCentral()
+              maven { url 'https://meteorclient.com' }
+          }
+          dependencies {
+              compileOnly 'meteordevelopment:meteor-client:0.5.8-SNAPSHOT'
+          }
+          tasks.withType(JavaCompile).configureEach { options.release = 21 }
+          EOF
 
-      - name: Setup Gradle Build Tool
+      - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
         with:
-          gradle-version: '8.10.2'
-          cache-disabled: true
+          gradle-version: '8.8'
 
-      - name: Force Wrapper Generation
-        run: gradle wrapper --gradle-version 8.10.2
+      - name: Build Mod with ShadowJar
+        run: gradle shadowJar --no-daemon
 
-      - name: Grant Execute Permissions
-        run: chmod +x gradlew
-          
-      - name: Clean And Build Mod
-        run: ./gradlew clean build --no-daemon -x test
-        
       - name: Upload Final Mod File
         uses: actions/upload-artifact@v4
         with:
           name: RadiumAddon-Jar
-          path: build/libs/*.jar
+          path: build/libs/*-all.jar
