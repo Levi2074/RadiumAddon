@@ -12,21 +12,23 @@ jobs:
           distribution: 'microsoft'
           java-version: '21'
 
-      - name: Setup Gradle
+      - name: Setup Gradle Without Broken Cache
         uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: '8.8'
+          cache-disabled: true # Zwingt den Server, den kaputten Cache zu ignorieren!
 
-      - name: Force Compiling Without Loom
-        run: |
-          mkdir -p build/libs
-          javac -d build/libs $(find src/main/java -name "*.java")
-          cd build/libs
-          jar cvf radiumaddon-1.0.0.jar .
+      - name: Force Wrapper Generation
+        run: gradle wrapper --gradle-version 8.8
+
+      - name: Grant Execute Permissions
+        run: chmod +x gradlew
           
+      - name: Clean And Build Mod
+        run: ./gradlew clean build --no-daemon -x test
+        
       - name: Upload Final Mod File
         uses: actions/upload-artifact@v4
         with:
           name: RadiumAddon-Jar
           path: build/libs/*.jar
-          
