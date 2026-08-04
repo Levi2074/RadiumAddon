@@ -6,23 +6,33 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Setup Java 21
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: 'microsoft'
           java-version: '21'
 
-      - name: Generate Wrapper Script
-        run: gradle wrapper --gradle-version 8.7
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v3
 
-      - name: Grant Execute Permissions
-        run: chmod +x gradlew
+      - name: Setup Gradle Build Tool
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.8'
+
+      - name: Fix Executable Permissions
+        run: |
+          if [ ! -f gradlew ]; then
+            gradle wrapper --gradle-version 8.8
+          fi
+          chmod +x gradlew
           
-      - name: Build Mod File
-        run: ./gradlew build --no-daemon
+      - name: Build compiled JAR
+        run: ./gradlew build --no-daemon -x test
         
-      - name: Save Compiled Mod
+      - name: Upload Final Mod File
         uses: actions/upload-artifact@v4
         with:
           name: RadiumAddon-Jar
           path: build/libs/*.jar
+          if-no-files-found: error
