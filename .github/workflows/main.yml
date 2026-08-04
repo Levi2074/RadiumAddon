@@ -12,16 +12,21 @@ jobs:
           distribution: 'microsoft'
           java-version: '21'
 
-      - name: Setup Gradle Build Tool
+      - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: '8.8'
+
+      - name: Force Compiling Without Loom
+        run: |
+          mkdir -p build/libs
+          javac -d build/libs $(find src/main/java -name "*.java")
+          cd build/libs
+          jar cvf radiumaddon-1.0.0.jar .
           
-      - name: Build compiled JAR
-        run: gradle build --no-daemon -x test
-        
       - name: Upload Final Mod File
         uses: actions/upload-artifact@v4
         with:
           name: RadiumAddon-Jar
           path: build/libs/*.jar
+          
